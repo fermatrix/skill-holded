@@ -1,41 +1,68 @@
-# [Skill Name] Claude Skill
+# skill-holded — Holded ERP Claude Skill
 
-[Brief description of what this skill does and what system it integrates with.]
+Access Holded ERP from Claude via REST API. Manage contacts, all document types (invoices, estimates, orders, expenses, etc.), products, warehouses, accounting accounts, and treasury.
 
 ## Features
 
-- Feature one
-- Feature two
+- **Contacts** — search, list, get, create, update
+- **Documents** — all 10 types: invoice, creditnote, estimate, order, proforma, waybill, salesreceipt, expense, purchaserefund, purchaseorder
+  - List, search, get details with line items, create, pay, send by email, download PDF
+- **Products & Services** — search, get, create, update, stock levels per warehouse
+- **Warehouses** — list all warehouses
+- **Accounting** — chart of accounts, daily ledger, taxes
+- **Treasury** — bank/cash accounts, movements, P&L, balance sheet
+- **Multi-instance** — connect multiple Holded organizations via aliases
 
 ## Installation
 
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/fermatrix/[repo-name].git
-cp -r [repo-name] /mnt/skills/user/[folder]
+git clone https://github.com/fermatrix/skill-holded.git
 ```
 
 ### 2. Prerequisites
 
-- [List prerequisites, e.g. Python version, external tools]
+- Python 3.8+ (no external packages required — uses stdlib only)
+- Holded API key (from Settings → Integrations → API)
 
 ### 3. Configure Credentials
 
-Copy `.env.example` to `.env` in `/mnt/skills/user/[folder]/` and fill in your credentials:
+Copy `.env.example` to `.env` in the skill directory and fill in your API key(s):
 
 ```bash
-EXAMPLE_URL=https://your-instance.example.com
-EXAMPLE_USER=your.email@example.com
-EXAMPLE_APIKEY=your-api-key-here
+HOLDED_ENZO_API_KEY=your-holded-api-key-here
 ```
+
+Multiple organizations:
+
+```bash
+HOLDED_ENZO_API_KEY=key-for-enzo
+HOLDED_CLIENT2_API_KEY=key-for-client2
+```
+
+### 4. Build and Install
+
+```powershell
+./build-skill.ps1 -Version 1.0.0
+```
+
+Upload the generated `.skill` file in Claude → Settings → Skills.
 
 ## Usage
 
-### [Operation Name]
+See [SKILL.md](SKILL.md) for full command reference.
+
+Quick examples:
 
 ```bash
-python /mnt/skills/user/[folder]/scripts/[script].py [args]
+python .../contacts.py ENZO search "Nitaki"
+python .../documents.py ENZO invoice search "Nitaki"
+python .../documents.py ENZO invoice get 12345
+python .../documents.py ENZO invoice pdf 12345 /mnt/user-data/outputs/inv.pdf
+python .../products.py ENZO search "Consultoría"
+python .../accounting.py ENZO treasury
+python .../accounting.py ENZO profitloss 2025-01-01 2025-12-31
 ```
 
 ## License
@@ -45,4 +72,4 @@ MIT
 ---
 
 **Maintainer:** Fermatrix
-**Repository:** https://github.com/fermatrix/[repo-name]
+**Repository:** https://github.com/fermatrix/skill-holded
