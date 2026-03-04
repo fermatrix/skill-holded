@@ -4,6 +4,15 @@ All notable changes to this project are documented here.
 
 ---
 
+## [1.0.7] - 2026-03-04
+
+### Changed
+- `documents.py`: preserve Holded API field names throughout — no more renaming (`docNumber`, `dueDate`, `contact`, `contactName`, `taxTotal`, `productId`, `accountingAccountId`, `units`, `cost`)
+- `documents.py`: rename `_fmt_lines` → `_fmt_products`; `create_document()` items now use Holded field names (`units`, `cost`, `productId`, `accountingAccountId`)
+- `test_endpoints.py`: field list shown as plain comma-separated names instead of typed JSON; remove `_mask()` helper
+
+---
+
 ## [1.0.6] - 2026-03-04
 
 ### Fixed
