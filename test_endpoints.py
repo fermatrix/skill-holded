@@ -174,13 +174,36 @@ def main():
     run("products.warehouses()",             lambda: list_warehouses(client))
 
     # ── taxes ───────────────────────────────────────────────────────────────────
-    # Nota: Holded no expone accounting/ledger/treasury via REST (devuelve HTML).
-    # Solo los impuestos están disponibles en /invoicing/v1/taxes.
     section("TAXES  /invoicing/v1/taxes")
-    from accounting import list_taxes, search_taxes
+    from accounting import list_taxes, search_taxes, list_ledger, list_accounts
 
     run("taxes.list()",          lambda: list_taxes(client))
     run("taxes.search('IVA')",   lambda: search_taxes(client, "IVA"))
+
+    # ── accounting ──────────────────────────────────────────────────────────────
+    # Estos endpoints están documentados en la API de Holded (accounting/v1).
+    # Algunas API keys devuelven HTML en lugar de JSON (sin acceso a reporting).
+    # El test los incluye igualmente para detectar si el acceso está disponible.
+    import datetime as _dt
+    _year = _dt.date.today().year
+
+    section("ACCOUNTING  /accounting/v1/dailyledger")
+    run(f"ledger.list({_year})",
+        lambda: list_ledger(client, page=1))
+    run(f"ledger.list({_year-1})",
+        lambda y=_year-1: list_ledger(client, page=1,
+                                      date_from=f"{y}-01-01",
+                                      date_to=f"{y}-12-31"))
+
+    section("ACCOUNTING  /accounting/v1/chartofaccounts")
+    run("accounts.list()",
+        lambda: list_accounts(client))
+    run("accounts.list(include_empty=1)",
+        lambda: list_accounts(client, include_empty=1))
+    run(f"accounts.list({_year})",
+        lambda y=_year: list_accounts(client,
+                                      date_from=f"{y}-01-01",
+                                      date_to=f"{y}-12-31"))
 
     print(f"\n{BOLD}Done.{RESET}\n")
 
