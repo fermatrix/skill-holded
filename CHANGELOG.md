@@ -4,6 +4,13 @@ All notable changes to this project are documented here.
 
 ---
 
+## [1.0.6] - 2026-03-04
+
+### Fixed
+- `documents.py`: `list_documents()` was silently discarding the `products` field (line items) returned by the API; moved line item normalization to `_fmt_lines()` and called from `_fmt()` so both `list_documents()` and `get_document()` always include `lines` with `product_id`, `account_id`, `name`, `quantity`, `price`, `discount`, `tax`, `subtotal`, `sku`
+
+---
+
 ## [1.0.5] - 2026-03-04
 
 ### Fixed
