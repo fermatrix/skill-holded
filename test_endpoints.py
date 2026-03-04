@@ -173,43 +173,14 @@ def main():
     run("products.search('a', limit=3)",     lambda: search_products(client, "a", limit=3))
     run("products.warehouses()",             lambda: list_warehouses(client))
 
-    # ── accounting — probe alternative paths ───────────────────────────────────
-    section("ACCOUNTING — probing endpoint paths")
-    accounting_paths = [
-        "accounting/v1/accounts",
-        "accounting/v1/account",
-        "accounting/v2/accounts",
-        "invoicing/v1/accounts",
-    ]
-    for path in accounting_paths:
-        run(f"GET /{path}", lambda p=path: client.get(p, params={"page": 1}))
+    # ── taxes ───────────────────────────────────────────────────────────────────
+    # Nota: Holded no expone accounting/ledger/treasury via REST (devuelve HTML).
+    # Solo los impuestos están disponibles en /invoicing/v1/taxes.
+    section("TAXES  /invoicing/v1/taxes")
+    from accounting import list_taxes, search_taxes
 
-    section("TAXES — probing endpoint paths")
-    tax_paths = [
-        "accounting/v1/taxes",
-        "invoicing/v1/taxes",
-        "accounting/v1/tax",
-    ]
-    for path in tax_paths:
-        run(f"GET /{path}", lambda p=path: client.get(p))
-
-    section("TREASURY — probing endpoint paths")
-    treasury_paths = [
-        "accounting/v1/treasury",
-        "accounting/v1/treasuryaccounts",
-        "accounting/v2/treasury",
-    ]
-    for path in treasury_paths:
-        run(f"GET /{path}", lambda p=path: client.get(p, params={"page": 1}))
-
-    section("WAREHOUSES — probing endpoint paths")
-    wh_paths = [
-        "inventory/v1/warehouses",
-        "invoicing/v1/warehouses",
-        "inventory/v2/warehouses",
-    ]
-    for path in wh_paths:
-        run(f"GET /{path}", lambda p=path: client.get(p))
+    run("taxes.list()",          lambda: list_taxes(client))
+    run("taxes.search('IVA')",   lambda: search_taxes(client, "IVA"))
 
     print(f"\n{BOLD}Done.{RESET}\n")
 
