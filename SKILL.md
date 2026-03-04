@@ -41,7 +41,7 @@ Fields returned: `id`, `name`, `code`, `type`, `email`, `phone`, `mobile`, `vat_
 
 All document types share the same command structure. Use `doc_type` as the second argument.
 
-**Document types:** `invoice`, `creditnote`, `estimate`, `order`, `proforma`, `waybill`, `salesreceipt`, `expense`, `purchaserefund`, `purchaseorder`
+**Document types:** `invoice`, `creditnote`, `estimate`, `order`, `salesorder`, `waybill`, `salesreceipt`, `purchaserefund`, `purchaseorder`
 
 ```bash
 # List by date range (Holded uses time ranges, not page numbers)
@@ -116,35 +116,19 @@ python /mnt/skills/user/holded/scripts/products.py ENZO warehouses
 
 ---
 
-## 4. Accounting
+## 4. Taxes
+
+Holded does not expose accounting ledger, chart of accounts, or treasury via REST API (those are only accessible in the web app). Only taxes are available.
 
 ```bash
-# Chart of accounts
-python /mnt/skills/user/holded/scripts/accounting.py ENZO accounts [page]
-
-# Search accounts by code or name
-python /mnt/skills/user/holded/scripts/accounting.py ENZO search "705" [limit]
-python /mnt/skills/user/holded/scripts/accounting.py ENZO search "ventas"
-
-# Daily ledger for an account
-python /mnt/skills/user/holded/scripts/accounting.py ENZO ledger <account_id> [date_from] [date_to]
-# date format: YYYY-MM-DD
-
-# Configured taxes
+# List all configured taxes
 python /mnt/skills/user/holded/scripts/accounting.py ENZO taxes
 
-# Treasury accounts (banks, cash)
-python /mnt/skills/user/holded/scripts/accounting.py ENZO treasury [page]
-
-# Treasury account movements
-python /mnt/skills/user/holded/scripts/accounting.py ENZO movements <treasury_id> [date_from] [date_to] [page]
-
-# P&L report
-python /mnt/skills/user/holded/scripts/accounting.py ENZO profitloss 2025-01-01 2025-12-31
-
-# Balance sheet
-python /mnt/skills/user/holded/scripts/accounting.py ENZO balancesheet 2025-12-31
+# Search taxes by name
+python /mnt/skills/user/holded/scripts/accounting.py ENZO search "IVA"
 ```
+
+Fields returned: `id`, `name`, `rate`, `type`, `purchase`.
 
 ---
 
@@ -153,5 +137,6 @@ python /mnt/skills/user/holded/scripts/accounting.py ENZO balancesheet 2025-12-3
 - All dates in **YYYY-MM-DD** format (Holded uses Unix timestamps internally — handled automatically)
 - Documents are created in **draft** state by default
 - Use `search` before `create` to avoid duplicate contacts or products
-- `pay` requires a valid treasury account ID — use `accounting.py ENZO treasury` to list them
 - Always show the user a summary before creating or paying documents
+- `proforma` and `expense` are NOT valid document types in Holded REST API (HTTP 400)
+- Holded accounting (ledger, chart of accounts, treasury) is NOT available via REST API

@@ -4,6 +4,16 @@ All notable changes to this project are documented here.
 
 ---
 
+## [1.0.3] - 2026-03-04
+
+### Fixed
+- `documents.py`: remove `proforma` and `expense` from DOC_TYPES (Holded returns HTTP 400 for these types)
+- `products.py`: `list_warehouses()` — correct endpoint `/invoicing/v1/warehouses` (not `/inventory/v1/warehouses`)
+- `accounting.py`: rewritten — Holded does not expose accounting/ledger/treasury via REST API; only taxes available via `/invoicing/v1/taxes`
+- `holded_client.py`: `_request()` raises informative `RuntimeError` for non-JSON responses instead of bare `JSONDecodeError`
+
+---
+
 ## [1.0.2] - 2026-03-04
 
 ### Fixed

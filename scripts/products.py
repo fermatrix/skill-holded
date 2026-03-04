@@ -131,7 +131,7 @@ def get_stock(client, product_id):
 
 def list_warehouses(client):
     """List all warehouses."""
-    result = client.get("inventory/v1/warehouses")
+    result = client.get("invoicing/v1/warehouses")
     if isinstance(result, list):
         return [
             {

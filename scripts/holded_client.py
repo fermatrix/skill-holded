@@ -66,7 +66,13 @@ class HoldedClient:
                 content = resp.read()
                 if binary:
                     return content
-                return json.loads(content.decode()) if content else {}
+                if not content:
+                    return {}
+                try:
+                    return json.loads(content.decode("utf-8"))
+                except (json.JSONDecodeError, UnicodeDecodeError):
+                    raw = content.decode("utf-8", errors="replace")[:300]
+                    raise RuntimeError(f"Non-JSON response: {raw}")
         except urllib.error.HTTPError as e:
             body = e.read().decode() if e.fp else ""
             raise RuntimeError(f"HTTP {e.code}: {body[:500]}")

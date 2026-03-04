@@ -24,16 +24,15 @@ def _default_range():
     return _to_ts(str(two_years_ago)), _to_ts(str(today))
 
 # Map of user-facing alias → Holded unified API docType name
+# Note: 'proforma' and 'expense' are NOT valid types in Holded unified endpoint (HTTP 400)
 DOC_TYPES = {
     "invoice":       "invoice",
     "creditnote":    "creditnote",
     "estimate":      "estimate",
     "order":         "salesorder",
     "salesorder":    "salesorder",
-    "proforma":      "proforma",
     "waybill":       "waybill",
     "salesreceipt":  "salesreceipt",
-    "expense":       "expense",
     "purchaserefund":"purchaserefund",
     "purchaseorder": "purchaseorder",
 }
