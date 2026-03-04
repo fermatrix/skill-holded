@@ -1,6 +1,6 @@
 ---
 name: skill-holded
-description: "Access Holded ERP via REST API. Use for contacts, invoices, estimates, sales orders, purchase orders, expenses, credit notes, proformas, waybills, products, warehouses, accounting accounts, ledger, taxes, and treasury. Supports searching, creating, updating, paying, sending and downloading PDFs for all document types. Triggers: Holded de ENZO, busca contacto en Holded, factura Holded, pedido Holded, producto Holded, contabilidad Holded, tesorería Holded."
+description: "Access Holded ERP via REST API. Use for contacts, invoices, estimates, sales orders, purchase orders, expenses, credit notes, proformas, waybills, products, warehouses, accounting accounts, ledger, taxes, and treasury. Supports searching, creating, updating, paying, sending and downloading PDFs for all document types. Triggers: Holded de MYCO, busca contacto en Holded, factura Holded, pedido Holded, producto Holded, contabilidad Holded, tesorería Holded."
 ---
 
 # Holded ERP Skill
@@ -23,12 +23,12 @@ All scripts are in `/mnt/skills/user/holded/scripts/`.
 ## 1. Contacts
 
 ```bash
-python /mnt/skills/user/holded/scripts/contacts.py ENZO search "Nitaki"
-python /mnt/skills/user/holded/scripts/contacts.py ENZO search "nitaki" 50
-python /mnt/skills/user/holded/scripts/contacts.py ENZO list [page]
-python /mnt/skills/user/holded/scripts/contacts.py ENZO get <contact_id>
-python /mnt/skills/user/holded/scripts/contacts.py ENZO create "Empresa SA" client email@example.com
-python /mnt/skills/user/holded/scripts/contacts.py ENZO update <contact_id> '{"email": "new@example.com"}'
+python /mnt/skills/user/holded/scripts/contacts.py MYCO search "Nitaki"
+python /mnt/skills/user/holded/scripts/contacts.py MYCO search "nitaki" 50
+python /mnt/skills/user/holded/scripts/contacts.py MYCO list [page]
+python /mnt/skills/user/holded/scripts/contacts.py MYCO get <contact_id>
+python /mnt/skills/user/holded/scripts/contacts.py MYCO create "Empresa SA" client email@example.com
+python /mnt/skills/user/holded/scripts/contacts.py MYCO update <contact_id> '{"email": "new@example.com"}'
 ```
 
 Contact `type` values: `client`, `supplier`, `debtor`, `creditor`.
@@ -45,35 +45,35 @@ All document types share the same command structure. Use `doc_type` as the secon
 
 ```bash
 # List by date range (Holded uses time ranges, not page numbers)
-python /mnt/skills/user/holded/scripts/documents.py ENZO invoice list
-python /mnt/skills/user/holded/scripts/documents.py ENZO invoice list 2025-01-01 2025-12-31
-python /mnt/skills/user/holded/scripts/documents.py ENZO invoice list 2025-01-01 2025-12-31 <contact_id>
-python /mnt/skills/user/holded/scripts/documents.py ENZO invoice list - - <contact_id> 0
+python /mnt/skills/user/holded/scripts/documents.py MYCO invoice list
+python /mnt/skills/user/holded/scripts/documents.py MYCO invoice list 2025-01-01 2025-12-31
+python /mnt/skills/user/holded/scripts/documents.py MYCO invoice list 2025-01-01 2025-12-31 <contact_id>
+python /mnt/skills/user/holded/scripts/documents.py MYCO invoice list - - <contact_id> 0
 # date_from/date_to: YYYY-MM-DD (default: last 2 years)  |  paid: 0=unpaid 1=paid  |  use - to skip optional args
 
 # Search by contact name, doc number, or ref
-python /mnt/skills/user/holded/scripts/documents.py ENZO invoice search "Nitaki"
-python /mnt/skills/user/holded/scripts/documents.py ENZO invoice search "Nitaki" 20 2025-01-01 2025-12-31
-python /mnt/skills/user/holded/scripts/documents.py ENZO estimate search "SPIRAL"
-python /mnt/skills/user/holded/scripts/documents.py ENZO purchaseorder search "proveedor"
+python /mnt/skills/user/holded/scripts/documents.py MYCO invoice search "Nitaki"
+python /mnt/skills/user/holded/scripts/documents.py MYCO invoice search "Nitaki" 20 2025-01-01 2025-12-31
+python /mnt/skills/user/holded/scripts/documents.py MYCO estimate search "SPIRAL"
+python /mnt/skills/user/holded/scripts/documents.py MYCO purchaseorder search "proveedor"
 
 # Get full details with line items
-python /mnt/skills/user/holded/scripts/documents.py ENZO invoice get <doc_id>
+python /mnt/skills/user/holded/scripts/documents.py MYCO invoice get <doc_id>
 
 # Create (items as JSON array)
-python /mnt/skills/user/holded/scripts/documents.py ENZO invoice create <contact_id> <date> \
+python /mnt/skills/user/holded/scripts/documents.py MYCO invoice create <contact_id> <date> \
   '[{"name": "Servicio", "quantity": 1, "price": 1000, "tax": 21}]' \
   "notes text" "due_date" "ref"
 
 # Pay
-python /mnt/skills/user/holded/scripts/documents.py ENZO invoice pay <doc_id> <account_id> <date> <amount>
+python /mnt/skills/user/holded/scripts/documents.py MYCO invoice pay <doc_id> <account_id> <date> <amount>
 
 # Send by email
-python /mnt/skills/user/holded/scripts/documents.py ENZO invoice send <doc_id> "client@example.com"
-python /mnt/skills/user/holded/scripts/documents.py ENZO invoice send <doc_id> '["a@b.com","c@d.com"]'
+python /mnt/skills/user/holded/scripts/documents.py MYCO invoice send <doc_id> "client@example.com"
+python /mnt/skills/user/holded/scripts/documents.py MYCO invoice send <doc_id> '["a@b.com","c@d.com"]'
 
 # Download PDF
-python /mnt/skills/user/holded/scripts/documents.py ENZO invoice pdf <doc_id> /mnt/user-data/outputs/doc.pdf
+python /mnt/skills/user/holded/scripts/documents.py MYCO invoice pdf <doc_id> /mnt/user-data/outputs/doc.pdf
 ```
 
 **Document line item fields:**
@@ -93,25 +93,25 @@ Line item fields: `product_id`, `account_id` (accounting account — `accounting
 
 ```bash
 # List all (paginated)
-python /mnt/skills/user/holded/scripts/products.py ENZO list [page] [kind]
+python /mnt/skills/user/holded/scripts/products.py MYCO list [page] [kind]
 
 # Search by name, SKU, or description
-python /mnt/skills/user/holded/scripts/products.py ENZO search "Consultoría" [limit] [kind]
+python /mnt/skills/user/holded/scripts/products.py MYCO search "Consultoría" [limit] [kind]
 
 # Get by ID
-python /mnt/skills/user/holded/scripts/products.py ENZO get <product_id>
+python /mnt/skills/user/holded/scripts/products.py MYCO get <product_id>
 
 # Create
-python /mnt/skills/user/holded/scripts/products.py ENZO create "Servicio Consulting" 1500 service
+python /mnt/skills/user/holded/scripts/products.py MYCO create "Servicio Consulting" 1500 service
 
 # Update
-python /mnt/skills/user/holded/scripts/products.py ENZO update <product_id> '{"price": 1600}'
+python /mnt/skills/user/holded/scripts/products.py MYCO update <product_id> '{"price": 1600}'
 
 # Stock levels across warehouses
-python /mnt/skills/user/holded/scripts/products.py ENZO stock <product_id>
+python /mnt/skills/user/holded/scripts/products.py MYCO stock <product_id>
 
 # List warehouses
-python /mnt/skills/user/holded/scripts/products.py ENZO warehouses
+python /mnt/skills/user/holded/scripts/products.py MYCO warehouses
 ```
 
 `kind` values: `product`, `service`. Fields returned: `id`, `name`, `sku`, `description`, `kind`, `price`, `cost`, `tax`, `stock`, `unit`, `barcode`.
@@ -122,16 +122,16 @@ python /mnt/skills/user/holded/scripts/products.py ENZO warehouses
 
 ```bash
 # List taxes
-python /mnt/skills/user/holded/scripts/accounting.py ENZO taxes
-python /mnt/skills/user/holded/scripts/accounting.py ENZO search "IVA"
+python /mnt/skills/user/holded/scripts/accounting.py MYCO taxes
+python /mnt/skills/user/holded/scripts/accounting.py MYCO search "IVA"
 
 # Daily ledger (starttmp/endtmp mandatory; defaults to current year)
-python /mnt/skills/user/holded/scripts/accounting.py ENZO ledger
-python /mnt/skills/user/holded/scripts/accounting.py ENZO ledger 1 2025-01-01 2025-12-31
+python /mnt/skills/user/holded/scripts/accounting.py MYCO ledger
+python /mnt/skills/user/holded/scripts/accounting.py MYCO ledger 1 2025-01-01 2025-12-31
 
 # Chart of accounts
-python /mnt/skills/user/holded/scripts/accounting.py ENZO accounts
-python /mnt/skills/user/holded/scripts/accounting.py ENZO accounts 2025-01-01 2025-12-31 1
+python /mnt/skills/user/holded/scripts/accounting.py MYCO accounts
+python /mnt/skills/user/holded/scripts/accounting.py MYCO accounts 2025-01-01 2025-12-31 1
 ```
 
 Taxes fields: `id`, `name`, `rate`, `type`, `purchase`.

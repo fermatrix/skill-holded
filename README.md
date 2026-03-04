@@ -31,13 +31,13 @@ git clone https://github.com/fermatrix/skill-holded.git
 Copy `.env.example` to `.env` in the skill directory and fill in your API key(s):
 
 ```bash
-HOLDED_ENZO_API_KEY=your-holded-api-key-here
+HOLDED_MYCO_API_KEY=your-holded-api-key-here
 ```
 
 Multiple organizations:
 
 ```bash
-HOLDED_ENZO_API_KEY=key-for-enzo
+HOLDED_MYCO_API_KEY=key-for-enzo
 HOLDED_CLIENT2_API_KEY=key-for-client2
 ```
 
@@ -56,13 +56,13 @@ See [SKILL.md](SKILL.md) for full command reference.
 Quick examples:
 
 ```bash
-python .../contacts.py ENZO search "Nitaki"
-python .../documents.py ENZO invoice search "Nitaki"
-python .../documents.py ENZO invoice get 12345
-python .../documents.py ENZO invoice pdf 12345 /mnt/user-data/outputs/inv.pdf
-python .../products.py ENZO search "Consultoría"
-python .../accounting.py ENZO treasury
-python .../accounting.py ENZO profitloss 2025-01-01 2025-12-31
+python .../contacts.py MYCO search "Nitaki"
+python .../documents.py MYCO invoice search "Nitaki"
+python .../documents.py MYCO invoice get 12345
+python .../documents.py MYCO invoice pdf 12345 /mnt/user-data/outputs/inv.pdf
+python .../products.py MYCO search "Consultoría"
+python .../accounting.py MYCO treasury
+python .../accounting.py MYCO profitloss 2025-01-01 2025-12-31
 ```
 
 ## License

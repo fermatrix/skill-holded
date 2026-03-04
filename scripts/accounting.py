@@ -86,10 +86,10 @@ if __name__ == "__main__":
         print(json.dumps({
             "error": "Usage: accounting.py <ALIAS> <command> [args...]",
             "commands": {
-                "taxes":    "accounting.py ENZO taxes",
-                "search":   "accounting.py ENZO search <query>",
-                "ledger":   "accounting.py ENZO ledger [page] [date_from] [date_to]",
-                "accounts": "accounting.py ENZO accounts [date_from] [date_to] [include_empty]",
+                "taxes":    "accounting.py MYCO taxes",
+                "search":   "accounting.py MYCO search <query>",
+                "ledger":   "accounting.py MYCO ledger [page] [date_from] [date_to]",
+                "accounts": "accounting.py MYCO accounts [date_from] [date_to] [include_empty]",
             },
         }, indent=2))
         sys.exit(1)

@@ -105,11 +105,11 @@ if __name__ == "__main__":
         print(json.dumps({
             "error": "Usage: contacts.py <ALIAS> <command> [args...]",
             "commands": {
-                "search": "contacts.py ENZO search <query> [limit]",
-                "list":   "contacts.py ENZO list [page]",
-                "get":    "contacts.py ENZO get <contact_id>",
-                "create": "contacts.py ENZO create <name> [type] [email] [phone] [vat] [address] [city] [postal] [country]",
-                "update": "contacts.py ENZO update <contact_id> <json_fields>",
+                "search": "contacts.py MYCO search <query> [limit]",
+                "list":   "contacts.py MYCO list [page]",
+                "get":    "contacts.py MYCO get <contact_id>",
+                "create": "contacts.py MYCO create <name> [type] [email] [phone] [vat] [address] [city] [postal] [country]",
+                "update": "contacts.py MYCO update <contact_id> <json_fields>",
             }
         }, indent=2))
         sys.exit(1)

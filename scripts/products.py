@@ -150,13 +150,13 @@ if __name__ == "__main__":
         print(json.dumps({
             "error": "Usage: products.py <ALIAS> <command> [args...]",
             "commands": {
-                "list":       "products.py ENZO list [page] [kind]",
-                "search":     "products.py ENZO search <query> [limit] [kind]",
-                "get":        "products.py ENZO get <product_id>",
-                "create":     "products.py ENZO create <name> <price> [kind] [sku] [description]",
-                "update":     "products.py ENZO update <product_id> <json_fields>",
-                "stock":      "products.py ENZO stock <product_id>",
-                "warehouses": "products.py ENZO warehouses",
+                "list":       "products.py MYCO list [page] [kind]",
+                "search":     "products.py MYCO search <query> [limit] [kind]",
+                "get":        "products.py MYCO get <product_id>",
+                "create":     "products.py MYCO create <name> <price> [kind] [sku] [description]",
+                "update":     "products.py MYCO update <product_id> <json_fields>",
+                "stock":      "products.py MYCO stock <product_id>",
+                "warehouses": "products.py MYCO warehouses",
             }
         }, indent=2))
         sys.exit(1)

@@ -231,13 +231,13 @@ if __name__ == "__main__":
             "error": "Usage: documents.py <ALIAS> <doc_type> <command> [args...]",
             "doc_types": list(DOC_TYPES.keys()),
             "commands": {
-                "list":   "documents.py ENZO invoice list [date_from] [date_to] [contact_id] [paid] [sort]",
-                "search": "documents.py ENZO invoice search <query> [limit] [date_from] [date_to]",
-                "get":    "documents.py ENZO invoice get <doc_id>",
-                "create": "documents.py ENZO invoice create <contact_id> <date> <items_json> [notes] [due_date] [ref]",
-                "pay":    "documents.py ENZO invoice pay <doc_id> <account_id> <date> <amount> [method] [notes]",
-                "send":   "documents.py ENZO invoice send <doc_id> <email_or_emails_json> [subject] [body]",
-                "pdf":    "documents.py ENZO invoice pdf <doc_id> <output_path>",
+                "list":   "documents.py MYCO invoice list [date_from] [date_to] [contact_id] [paid] [sort]",
+                "search": "documents.py MYCO invoice search <query> [limit] [date_from] [date_to]",
+                "get":    "documents.py MYCO invoice get <doc_id>",
+                "create": "documents.py MYCO invoice create <contact_id> <date> <items_json> [notes] [due_date] [ref]",
+                "pay":    "documents.py MYCO invoice pay <doc_id> <account_id> <date> <amount> [method] [notes]",
+                "send":   "documents.py MYCO invoice send <doc_id> <email_or_emails_json> [subject] [body]",
+                "pdf":    "documents.py MYCO invoice pdf <doc_id> <output_path>",
             },
             "notes": "date format: YYYY-MM-DD  |  paid: 0=unpaid 1=paid"
         }, indent=2))
