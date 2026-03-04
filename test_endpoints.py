@@ -46,39 +46,19 @@ YELLOW = "\033[93m"
 RESET  = "\033[0m"
 BOLD   = "\033[1m"
 
-def _mask(value):
-    """Replace actual values with type placeholders — no personal data in output."""
-    if value is None:
-        return None
-    if isinstance(value, bool):
-        return value
-    if isinstance(value, (int, float)):
-        return "<num>"
-    if isinstance(value, str):
-        return "<str>" if value else ""
-    if isinstance(value, list):
-        return f"[{len(value)} items]"
-    if isinstance(value, dict):
-        return f"{{...{len(value)} keys}}"
-    return "<value>"
-
 def ok(label, data):
     if isinstance(data, list):
         count = len(data)
         sample = data[0] if data else {}
         print(f"  {GREEN}OK{RESET} {label}: {count} item(s)")
         if sample:
-            keys = list(sample.keys())
-            masked = {k: _mask(sample[k]) for k in keys[:8]}
-            print(f"    fields: {json.dumps(masked, ensure_ascii=False)}")
+            print(f"    fields: {', '.join(sample.keys())}")
     elif isinstance(data, dict):
         if "error" in data:
             fail(label, data.get("error", "unknown error"))
             return
-        keys = list(data.keys())
-        masked = {k: _mask(data[k]) for k in keys[:8]}
         print(f"  {GREEN}OK{RESET} {label}: dict with {len(data)} keys")
-        print(f"    fields: {json.dumps(masked, ensure_ascii=False)}")
+        print(f"    fields: {', '.join(data.keys())}")
     else:
         print(f"  {YELLOW}??{RESET} {label}: unexpected type {type(data).__name__}")
 
