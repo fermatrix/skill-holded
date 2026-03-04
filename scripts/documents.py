@@ -51,7 +51,7 @@ def _endpoint(doc_type):
 
 
 def _fmt_lines(raw_lines):
-    """Normalize line items from Holded 'products' / 'items' / 'lines' field."""
+    """Normalize line items from Holded 'products' field."""
     return [
         {
             "product_id": ln.get("productId", ""),
@@ -71,9 +71,8 @@ def _fmt_lines(raw_lines):
 def _fmt(d, doc_type):
     """Normalize a document record.
     Holded returns contact as a string ID and contactName as the display name.
-    Line items are in 'products', 'items', or 'lines' depending on endpoint.
+    Line items are in the 'products' field.
     """
-    raw_lines = d.get("products") or d.get("items") or d.get("lines") or []
     return {
         "id":          d.get("id", ""),
         "doc_type":    doc_type,
@@ -90,7 +89,7 @@ def _fmt(d, doc_type):
         "notes":       d.get("notes", "") or "",
         "ref":         d.get("ref", "") or "",
         "tags":        d.get("tags", []),
-        "lines":       _fmt_lines(raw_lines),
+        "products":    _fmt_lines(d.get("products") or []),
     }
 
 

@@ -171,10 +171,10 @@ def main():
             if docs:
                 did = docs[0]["id"]
                 def _get_doc(t=probe_type, d=did):
-                    result = get_document(client, t, d)
-                    lines  = result.get("lines", [])
-                    if lines and "account_id" not in lines[0]:
-                        raise RuntimeError("account_id missing from line items")
+                    result   = get_document(client, t, d)
+                    products = result.get("products", [])
+                    if products and "account_id" not in products[0]:
+                        raise RuntimeError("account_id missing from products")
                     return result
                 run(f"documents.get({probe_type}, {did[:8]}…) — lines+account_id",
                     _get_doc)

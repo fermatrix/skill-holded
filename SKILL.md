@@ -83,9 +83,9 @@ python /mnt/skills/user/holded/scripts/documents.py MYCO invoice pdf <doc_id> /m
 
 **Document statuses:** `draft`, `sent`, `accepted`, `paid`, `overdue`, `closed`.
 
-Fields returned: `id`, `doc_type`, `number`, `date`, `due_date`, `status`, `contact_id`, `contact`, `total`, `subtotal`, `tax_total`, `currency`, `notes`, `ref`, `tags`, `lines`.
+Fields returned: `id`, `doc_type`, `number`, `date`, `due_date`, `status`, `contact_id`, `contact`, `total`, `subtotal`, `tax_total`, `currency`, `notes`, `ref`, `tags`, `products`.
 
-Line item fields: `product_id`, `account_id` (accounting account — `accountingAccountId`), `name`, `quantity`, `price`, `discount`, `tax`, `subtotal`, `sku`.
+`products` field: `product_id`, `account_id` (accounting account — `accountingAccountId`), `name`, `quantity`, `price`, `discount`, `tax`, `subtotal`, `sku`.
 
 ---
 
