@@ -9,21 +9,22 @@ import sys
 import json
 from holded_client import HoldedClient, error_exit
 
-# Map of short type alias → Holded endpoint segment
+# Map of user-facing alias → Holded unified API docType name
 DOC_TYPES = {
-    "invoice":       "invoices",
-    "creditnote":    "creditnotes",
-    "estimate":      "estimates",
-    "order":         "salesorders",
-    "proforma":      "proformas",
-    "waybill":       "waybills",
-    "salesreceipt":  "salesreceipts",
-    "expense":       "expenses",
-    "purchaserefund":"purchaserefunds",
-    "purchaseorder": "purchaseorders",
+    "invoice":       "invoice",
+    "creditnote":    "creditnote",
+    "estimate":      "estimate",
+    "order":         "salesorder",
+    "salesorder":    "salesorder",
+    "proforma":      "proforma",
+    "waybill":       "waybill",
+    "salesreceipt":  "salesreceipt",
+    "expense":       "expense",
+    "purchaserefund":"purchaserefund",
+    "purchaseorder": "purchaseorder",
 }
 
-BASE = "invoicing/v1"
+BASE = "invoicing/v1/documents"
 
 
 def _endpoint(doc_type):
