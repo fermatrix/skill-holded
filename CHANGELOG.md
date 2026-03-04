@@ -4,6 +4,13 @@ All notable changes to this project are documented here.
 
 ---
 
+## [1.0.1] - 2026-03-04
+
+### Fixed
+- `documents.py`: use unified Holded endpoint `/invoicing/v1/documents/{docType}` instead of separate per-type endpoints
+
+---
+
 ## [1.0.0] - 2026-03-04
 
 ### Added
