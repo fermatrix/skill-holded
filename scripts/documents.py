@@ -7,7 +7,21 @@ waybill, salesreceipt, expense, purchaserefund, purchaseorder.
 
 import sys
 import json
+import datetime
 from holded_client import HoldedClient, error_exit
+
+
+def _to_ts(date_str):
+    """Convert YYYY-MM-DD to Unix timestamp (int)."""
+    dt = datetime.datetime.strptime(date_str, "%Y-%m-%d")
+    return int(dt.timestamp())
+
+
+def _default_range():
+    """Default range: from 2 years ago to today."""
+    today = datetime.date.today()
+    two_years_ago = today.replace(year=today.year - 2)
+    return _to_ts(str(two_years_ago)), _to_ts(str(today))
 
 # Map of user-facing alias → Holded unified API docType name
 DOC_TYPES = {
@@ -38,7 +52,9 @@ def _endpoint(doc_type):
 
 
 def _fmt(d, doc_type):
-    """Normalize a document record."""
+    """Normalize a document record.
+    Holded returns contact as a string ID and contactName as the display name.
+    """
     return {
         "id":          d.get("id", ""),
         "doc_type":    doc_type,
@@ -46,8 +62,8 @@ def _fmt(d, doc_type):
         "date":        d.get("date", ""),
         "due_date":    d.get("dueDate", ""),
         "status":      d.get("status", ""),
-        "contact_id":  d.get("contactId", "") or d.get("contact", {}).get("id", ""),
-        "contact":     d.get("contactName", "") or d.get("contact", {}).get("name", ""),
+        "contact_id":  d.get("contact", "") or d.get("contactId", ""),
+        "contact":     d.get("contactName", "") or "",
         "total":       d.get("total", 0),
         "subtotal":    d.get("subtotal", 0),
         "tax_total":   d.get("taxTotal", 0),
@@ -58,39 +74,49 @@ def _fmt(d, doc_type):
     }
 
 
-def list_documents(client, doc_type, page=1, contact_id=None, status=None):
-    """List documents (paginated, up to 50 per page)."""
-    params = {"page": page}
-    if contact_id:
-        params["contactId"] = contact_id
-    if status:
-        params["status"] = status
+def list_documents(client, doc_type, date_from=None, date_to=None,
+                   contact_id=None, paid=None, sort=None):
+    """
+    List documents using Holded's time-range pagination.
+    date_from / date_to: YYYY-MM-DD strings (default: last 2 years).
+    contact_id: filter by Holded contact ID.
+    paid: '0' (unpaid) or '1' (paid).
+    sort: 'date' or other Holded sort values.
+    """
+    if date_from:
+        start_ts = _to_ts(date_from)
+    else:
+        start_ts, _ = _default_range()
+
+    if date_to:
+        end_ts = _to_ts(date_to)
+    else:
+        _, end_ts = _default_range()
+
+    params = {"starttmp": start_ts, "endtmp": end_ts}
+    if contact_id: params["contactid"] = contact_id
+    if paid is not None: params["paid"] = paid
+    if sort:       params["sort"]      = sort
+
     result = client.get(_endpoint(doc_type), params=params)
     if isinstance(result, list):
         return [_fmt(d, doc_type) for d in result]
     return []
 
 
-def search_documents(client, doc_type, query, limit=20):
-    """Search documents by contact name, number, or ref across pages."""
+def search_documents(client, doc_type, query, limit=20, date_from=None, date_to=None):
+    """Search documents by contact name, number, or ref within a date range."""
     query_lower = query.lower()
+    docs = list_documents(client, doc_type, date_from=date_from, date_to=date_to)
     matches = []
-    page = 1
-    while len(matches) < limit:
-        docs = client.get(_endpoint(doc_type), params={"page": page})
-        if not docs or not isinstance(docs, list):
-            break
-        for d in docs:
-            name = (d.get("contactName") or d.get("contact", {}).get("name", "") or "").lower()
-            number = (d.get("docNumber") or d.get("number", "") or "").lower()
-            ref = (d.get("ref") or "").lower()
-            if query_lower in name or query_lower in number or query_lower in ref:
-                matches.append(_fmt(d, doc_type))
-                if len(matches) >= limit:
-                    break
-        if len(docs) < 50:
-            break  # last page
-        page += 1
+    for d in docs:
+        name   = (d.get("contact")  or "").lower()
+        number = (d.get("number")   or "").lower()
+        ref    = (d.get("ref")      or "").lower()
+        if query_lower in name or query_lower in number or query_lower in ref:
+            matches.append(d)
+            if len(matches) >= limit:
+                break
     return matches
 
 
@@ -201,14 +227,15 @@ if __name__ == "__main__":
             "error": "Usage: documents.py <ALIAS> <doc_type> <command> [args...]",
             "doc_types": list(DOC_TYPES.keys()),
             "commands": {
-                "list":   "documents.py ENZO invoice list [page] [contact_id] [status]",
-                "search": "documents.py ENZO invoice search <query> [limit]",
+                "list":   "documents.py ENZO invoice list [date_from] [date_to] [contact_id] [paid] [sort]",
+                "search": "documents.py ENZO invoice search <query> [limit] [date_from] [date_to]",
                 "get":    "documents.py ENZO invoice get <doc_id>",
                 "create": "documents.py ENZO invoice create <contact_id> <date> <items_json> [notes] [due_date] [ref]",
                 "pay":    "documents.py ENZO invoice pay <doc_id> <account_id> <date> <amount> [method] [notes]",
                 "send":   "documents.py ENZO invoice send <doc_id> <email_or_emails_json> [subject] [body]",
                 "pdf":    "documents.py ENZO invoice pdf <doc_id> <output_path>",
-            }
+            },
+            "notes": "date format: YYYY-MM-DD  |  paid: 0=unpaid 1=paid"
         }, indent=2))
         sys.exit(1)
 
@@ -220,17 +247,23 @@ if __name__ == "__main__":
         client = HoldedClient(alias)
 
         if cmd == "list":
-            page       = int(sys.argv[4]) if len(sys.argv) > 4 else 1
-            contact_id = sys.argv[5]      if len(sys.argv) > 5 else None
-            status     = sys.argv[6]      if len(sys.argv) > 6 else None
-            results    = list_documents(client, doc_type, page=page,
-                                        contact_id=contact_id, status=status)
+            date_from  = sys.argv[4] if len(sys.argv) > 4 and sys.argv[4] != "-" else None
+            date_to    = sys.argv[5] if len(sys.argv) > 5 and sys.argv[5] != "-" else None
+            contact_id = sys.argv[6] if len(sys.argv) > 6 and sys.argv[6] != "-" else None
+            paid       = sys.argv[7] if len(sys.argv) > 7 and sys.argv[7] != "-" else None
+            sort       = sys.argv[8] if len(sys.argv) > 8 else None
+            results    = list_documents(client, doc_type, date_from=date_from,
+                                        date_to=date_to, contact_id=contact_id,
+                                        paid=paid, sort=sort)
             print(json.dumps(results, indent=2, ensure_ascii=False))
 
         elif cmd == "search":
-            query   = sys.argv[4] if len(sys.argv) > 4 else ""
-            limit   = int(sys.argv[5]) if len(sys.argv) > 5 else 20
-            results = search_documents(client, doc_type, query, limit=limit)
+            query     = sys.argv[4] if len(sys.argv) > 4 else ""
+            limit     = int(sys.argv[5]) if len(sys.argv) > 5 else 20
+            date_from = sys.argv[6] if len(sys.argv) > 6 and sys.argv[6] != "-" else None
+            date_to   = sys.argv[7] if len(sys.argv) > 7 and sys.argv[7] != "-" else None
+            results   = search_documents(client, doc_type, query, limit=limit,
+                                         date_from=date_from, date_to=date_to)
             print(json.dumps(results, indent=2, ensure_ascii=False))
 
         elif cmd == "get":

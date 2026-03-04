@@ -44,11 +44,16 @@ All document types share the same command structure. Use `doc_type` as the secon
 **Document types:** `invoice`, `creditnote`, `estimate`, `order`, `proforma`, `waybill`, `salesreceipt`, `expense`, `purchaserefund`, `purchaseorder`
 
 ```bash
-# List (paginated)
-python /mnt/skills/user/holded/scripts/documents.py ENZO invoice list [page] [contact_id] [status]
+# List by date range (Holded uses time ranges, not page numbers)
+python /mnt/skills/user/holded/scripts/documents.py ENZO invoice list
+python /mnt/skills/user/holded/scripts/documents.py ENZO invoice list 2025-01-01 2025-12-31
+python /mnt/skills/user/holded/scripts/documents.py ENZO invoice list 2025-01-01 2025-12-31 <contact_id>
+python /mnt/skills/user/holded/scripts/documents.py ENZO invoice list - - <contact_id> 0
+# date_from/date_to: YYYY-MM-DD (default: last 2 years)  |  paid: 0=unpaid 1=paid  |  use - to skip optional args
 
 # Search by contact name, doc number, or ref
-python /mnt/skills/user/holded/scripts/documents.py ENZO invoice search "Nitaki" [limit]
+python /mnt/skills/user/holded/scripts/documents.py ENZO invoice search "Nitaki"
+python /mnt/skills/user/holded/scripts/documents.py ENZO invoice search "Nitaki" 20 2025-01-01 2025-12-31
 python /mnt/skills/user/holded/scripts/documents.py ENZO estimate search "SPIRAL"
 python /mnt/skills/user/holded/scripts/documents.py ENZO purchaseorder search "proveedor"
 

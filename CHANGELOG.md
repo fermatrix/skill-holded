@@ -4,6 +4,15 @@ All notable changes to this project are documented here.
 
 ---
 
+## [1.0.2] - 2026-03-04
+
+### Fixed
+- `documents.py`: `_fmt()` — `contact` field is a string ID in Holded API, not a dict; use `contactName` for display name
+- `documents.py`: `list_documents()` — replace `page` pagination with `starttmp`/`endtmp` Unix timestamps (Holded API style); rename `contactId` → `contactid`; add `paid` and `sort` params
+- `documents.py`: `search_documents()` — use date-range fetch instead of page iteration
+
+---
+
 ## [1.0.1] - 2026-03-04
 
 ### Fixed
