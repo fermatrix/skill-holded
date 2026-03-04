@@ -50,10 +50,30 @@ def _endpoint(doc_type):
     return f"{BASE}/{DOC_TYPES[key]}"
 
 
+def _fmt_lines(raw_lines):
+    """Normalize line items from Holded 'products' / 'items' / 'lines' field."""
+    return [
+        {
+            "product_id": ln.get("productId", ""),
+            "account_id": ln.get("accountingAccountId", "") or "",
+            "name":       ln.get("name", "") or ln.get("desc", ""),
+            "quantity":   ln.get("units", 0),
+            "price":      ln.get("cost", 0),
+            "discount":   ln.get("discount", 0),
+            "tax":        ln.get("tax", 0),
+            "subtotal":   ln.get("subtotal", 0),
+            "sku":        ln.get("sku", "") or "",
+        }
+        for ln in raw_lines
+    ]
+
+
 def _fmt(d, doc_type):
     """Normalize a document record.
     Holded returns contact as a string ID and contactName as the display name.
+    Line items are in 'products', 'items', or 'lines' depending on endpoint.
     """
+    raw_lines = d.get("products") or d.get("items") or d.get("lines") or []
     return {
         "id":          d.get("id", ""),
         "doc_type":    doc_type,
@@ -70,6 +90,7 @@ def _fmt(d, doc_type):
         "notes":       d.get("notes", "") or "",
         "ref":         d.get("ref", "") or "",
         "tags":        d.get("tags", []),
+        "lines":       _fmt_lines(raw_lines),
     }
 
 
@@ -124,24 +145,7 @@ def get_document(client, doc_type, doc_id):
     result = client.get(f"{_endpoint(doc_type)}/{doc_id}")
     if not result or "error" in result:
         return {"error": f"Document {doc_id} not found"}
-    doc = _fmt(result, doc_type)
-    # Include line items if present
-    lines = result.get("items") or result.get("lines") or []
-    doc["lines"] = [
-        {
-            "product_id":   ln.get("productId", ""),
-            "account_id":   ln.get("accountingAccountId", "") or "",
-            "name":         ln.get("name", "") or ln.get("desc", ""),
-            "quantity":     ln.get("units", 0),
-            "price":        ln.get("cost", 0),
-            "discount":     ln.get("discount", 0),
-            "tax":          ln.get("tax", 0),
-            "subtotal":     ln.get("subtotal", 0),
-            "sku":          ln.get("sku", "") or "",
-        }
-        for ln in lines
-    ]
-    return doc
+    return _fmt(result, doc_type)
 
 
 def create_document(client, doc_type, contact_id, date, items, notes=None,
