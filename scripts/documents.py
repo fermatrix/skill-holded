@@ -50,46 +50,45 @@ def _endpoint(doc_type):
     return f"{BASE}/{DOC_TYPES[key]}"
 
 
-def _fmt_lines(raw_lines):
-    """Normalize line items from Holded 'products' field."""
+def _fmt_products(raw_products):
+    """Normalize items from Holded 'products' field, preserving API field names."""
     return [
         {
-            "product_id": ln.get("productId", ""),
-            "account_id": ln.get("accountingAccountId", "") or "",
-            "name":       ln.get("name", "") or ln.get("desc", ""),
-            "quantity":   ln.get("units", 0),
-            "price":      ln.get("cost", 0),
-            "discount":   ln.get("discount", 0),
-            "tax":        ln.get("tax", 0),
-            "subtotal":   ln.get("subtotal", 0),
-            "sku":        ln.get("sku", "") or "",
+            "productId":             ln.get("productId", ""),
+            "accountingAccountId":   ln.get("accountingAccountId", "") or "",
+            "name":                  ln.get("name", "") or ln.get("desc", ""),
+            "units":                 ln.get("units", 0),
+            "cost":                  ln.get("cost", 0),
+            "discount":              ln.get("discount", 0),
+            "tax":                   ln.get("tax", 0),
+            "subtotal":              ln.get("subtotal", 0),
+            "sku":                   ln.get("sku", "") or "",
         }
-        for ln in raw_lines
+        for ln in raw_products
     ]
 
 
 def _fmt(d, doc_type):
-    """Normalize a document record.
-    Holded returns contact as a string ID and contactName as the display name.
-    Line items are in the 'products' field.
+    """Normalize a document record, preserving Holded API field names.
+    doc_type is added by the skill (not in the API response).
     """
     return {
-        "id":          d.get("id", ""),
-        "doc_type":    doc_type,
-        "number":      d.get("docNumber") or d.get("number", ""),
-        "date":        d.get("date", ""),
-        "due_date":    d.get("dueDate", ""),
-        "status":      d.get("status", ""),
-        "contact_id":  d.get("contact", "") or d.get("contactId", ""),
-        "contact":     d.get("contactName", "") or "",
-        "total":       d.get("total", 0),
-        "subtotal":    d.get("subtotal", 0),
-        "tax_total":   d.get("taxTotal", 0),
-        "currency":    d.get("currency", "EUR"),
-        "notes":       d.get("notes", "") or "",
-        "ref":         d.get("ref", "") or "",
-        "tags":        d.get("tags", []),
-        "products":    _fmt_lines(d.get("products") or []),
+        "id":           d.get("id", ""),
+        "doc_type":     doc_type,
+        "docNumber":    d.get("docNumber", ""),
+        "date":         d.get("date", ""),
+        "dueDate":      d.get("dueDate", ""),
+        "status":       d.get("status", ""),
+        "contact":      d.get("contact", ""),
+        "contactName":  d.get("contactName", "") or "",
+        "total":        d.get("total", 0),
+        "subtotal":     d.get("subtotal", 0),
+        "taxTotal":     d.get("taxTotal", 0),
+        "currency":     d.get("currency", "EUR"),
+        "notes":        d.get("notes", "") or "",
+        "ref":          d.get("ref", "") or "",
+        "tags":         d.get("tags", []),
+        "products":     _fmt_products(d.get("products") or []),
     }
 
 
@@ -129,9 +128,9 @@ def search_documents(client, doc_type, query, limit=20, date_from=None, date_to=
     docs = list_documents(client, doc_type, date_from=date_from, date_to=date_to)
     matches = []
     for d in docs:
-        name   = (d.get("contact")  or "").lower()
-        number = (d.get("number")   or "").lower()
-        ref    = (d.get("ref")      or "").lower()
+        name   = (d.get("contactName") or "").lower()
+        number = (d.get("docNumber")   or "").lower()
+        ref    = (d.get("ref")         or "").lower()
         if query_lower in name or query_lower in number or query_lower in ref:
             matches.append(d)
             if len(matches) >= limit:
@@ -152,22 +151,23 @@ def create_document(client, doc_type, contact_id, date, items, notes=None,
     """
     Create a new document.
 
-    items: list of dicts with keys:
-        name (str), quantity (float), price (float),
+    items: list of dicts using Holded API field names:
+        name (str), units (float), cost (float),
         discount (float, optional), tax (float, optional),
-        product_id (str, optional)
+        productId (str, optional), accountingAccountId (str, optional)
     """
     data = {
         "contactId": contact_id,
         "date":      date,
         "items":     [
             {
-                "name":     it["name"],
-                "units":    it.get("quantity", 1),
-                "cost":     it["price"],
-                **({"discount": it["discount"]} if it.get("discount") else {}),
-                **({"tax":      it["tax"]}      if it.get("tax")      else {}),
-                **({"productId":it["product_id"]} if it.get("product_id") else {}),
+                "name":  it["name"],
+                "units": it.get("units", 1),
+                "cost":  it["cost"],
+                **({"discount":            it["discount"]}            if it.get("discount")            else {}),
+                **({"tax":                 it["tax"]}                 if it.get("tax")                 else {}),
+                **({"productId":           it["productId"]}           if it.get("productId")           else {}),
+                **({"accountingAccountId": it["accountingAccountId"]} if it.get("accountingAccountId") else {}),
             }
             for it in items
         ],
