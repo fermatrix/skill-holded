@@ -85,6 +85,8 @@ python /mnt/skills/user/holded/scripts/documents.py ENZO invoice pdf <doc_id> /m
 
 Fields returned: `id`, `doc_type`, `number`, `date`, `due_date`, `status`, `contact_id`, `contact`, `total`, `subtotal`, `tax_total`, `currency`, `notes`, `ref`, `tags`, `lines`.
 
+Line item fields: `product_id`, `account_id` (accounting account — `accountingAccountId`), `name`, `quantity`, `price`, `discount`, `tax`, `subtotal`, `sku`.
+
 ---
 
 ## 3. Products & Services

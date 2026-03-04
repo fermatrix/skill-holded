@@ -149,7 +149,7 @@ def main():
         pass
 
     # ── documents ──────────────────────────────────────────────────────────────
-    from documents import list_documents, DOC_TYPES
+    from documents import list_documents, get_document, DOC_TYPES
 
     seen = set()
     for dt in DOC_TYPES.values():
@@ -163,6 +163,24 @@ def main():
             lambda t=dt: list_documents(client, t,
                                         date_from="2025-01-01",
                                         date_to="2025-12-31"))
+
+    # get() on first invoice/purchaseorder to verify line items include account_id
+    for probe_type in ("invoice", "purchaseorder"):
+        try:
+            docs = list_documents(client, probe_type)
+            if docs:
+                did = docs[0]["id"]
+                def _get_doc(t=probe_type, d=did):
+                    result = get_document(client, t, d)
+                    lines  = result.get("lines", [])
+                    if lines and "account_id" not in lines[0]:
+                        raise RuntimeError("account_id missing from line items")
+                    return result
+                run(f"documents.get({probe_type}, {did[:8]}…) — lines+account_id",
+                    _get_doc)
+                break
+        except Exception:
+            pass
 
     # ── products ───────────────────────────────────────────────────────────────
     section("PRODUCTS  /invoicing/v1/products")

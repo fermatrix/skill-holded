@@ -130,6 +130,7 @@ def get_document(client, doc_type, doc_id):
     doc["lines"] = [
         {
             "product_id":   ln.get("productId", ""),
+            "account_id":   ln.get("accountingAccountId", "") or "",
             "name":         ln.get("name", "") or ln.get("desc", ""),
             "quantity":     ln.get("units", 0),
             "price":        ln.get("cost", 0),
