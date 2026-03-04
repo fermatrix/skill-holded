@@ -4,6 +4,15 @@ All notable changes to this project are documented here.
 
 ---
 
+## [1.0.4] - 2026-03-04
+
+### Added
+- `accounting.py`: `list_ledger()` — daily ledger via `GET /accounting/v1/dailyledger` (params: page, date_from, date_to; starttmp/endtmp mandatory, defaults to current year)
+- `accounting.py`: `list_accounts()` — chart of accounts via `GET /accounting/v1/chartofaccounts` (params: date_from, date_to, include_empty)
+- `test_endpoints.py`: new sections for `ACCOUNTING /accounting/v1/dailyledger` and `/accounting/v1/chartofaccounts` with dynamic year ranges
+
+---
+
 ## [1.0.3] - 2026-03-04
 
 ### Fixed

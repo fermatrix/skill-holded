@@ -116,19 +116,25 @@ python /mnt/skills/user/holded/scripts/products.py ENZO warehouses
 
 ---
 
-## 4. Taxes
-
-Holded does not expose accounting ledger, chart of accounts, or treasury via REST API (those are only accessible in the web app). Only taxes are available.
+## 4. Accounting
 
 ```bash
-# List all configured taxes
+# List taxes
 python /mnt/skills/user/holded/scripts/accounting.py ENZO taxes
-
-# Search taxes by name
 python /mnt/skills/user/holded/scripts/accounting.py ENZO search "IVA"
+
+# Daily ledger (starttmp/endtmp mandatory; defaults to current year)
+python /mnt/skills/user/holded/scripts/accounting.py ENZO ledger
+python /mnt/skills/user/holded/scripts/accounting.py ENZO ledger 1 2025-01-01 2025-12-31
+
+# Chart of accounts
+python /mnt/skills/user/holded/scripts/accounting.py ENZO accounts
+python /mnt/skills/user/holded/scripts/accounting.py ENZO accounts 2025-01-01 2025-12-31 1
 ```
 
-Fields returned: `id`, `name`, `rate`, `type`, `purchase`.
+Taxes fields: `id`, `name`, `rate`, `type`, `purchase`.
+
+> **Note:** Some API keys (e.g. read-only sub-keys) may receive HTML instead of JSON from `dailyledger` and `chartofaccounts`, indicating the key lacks reporting access.
 
 ---
 
@@ -139,4 +145,4 @@ Fields returned: `id`, `name`, `rate`, `type`, `purchase`.
 - Use `search` before `create` to avoid duplicate contacts or products
 - Always show the user a summary before creating or paying documents
 - `proforma` and `expense` are NOT valid document types in Holded REST API (HTTP 400)
-- Holded accounting (ledger, chart of accounts, treasury) is NOT available via REST API
+- Holded `dailyledger` and `chartofaccounts` are available via REST API but require `starttmp`/`endtmp`; some API keys may receive HTML (no reporting access)
