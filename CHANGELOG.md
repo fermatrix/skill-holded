@@ -4,6 +4,15 @@ All notable changes to this project are documented here.
 
 ---
 
+## [1.0.5] - 2026-03-04
+
+### Fixed
+- `documents.py`: `get_document()` — expose `account_id` (`accountingAccountId`) in each line item, enabling lookup of the accounting account per invoice/purchase line
+- `test_endpoints.py`: add `get()` probe on first available invoice/purchaseorder to verify `account_id` is present in line items
+- `SKILL.md`: document line item fields including `account_id`
+
+---
+
 ## [1.0.4] - 2026-03-04
 
 ### Added
