@@ -51,9 +51,9 @@ foreach ($file in $requiredFiles) {
     }
 }
 
-$envFile = Join-Path $distPrivateDir "$skillName.env"
+$envFile = Join-Path $distPrivateDir ".env"
 if (-not (Test-Path $envFile)) {
-    Write-Host "Falta: $skillName.env en $distPrivateDir" -ForegroundColor Red
+    Write-Host "Falta: .env en releases_private/" -ForegroundColor Red
     exit 1
 }
 
