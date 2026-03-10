@@ -31,3 +31,6 @@ credentials.json
 secrets.json
 *.key
 *.pem
+
+# Private distributions with credentials (never push to GitHub)
+releases_private/

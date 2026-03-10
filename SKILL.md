@@ -41,7 +41,20 @@ Fields returned: `id`, `name`, `code`, `type`, `email`, `phone`, `mobile`, `vat_
 
 All document types share the same command structure. Use `doc_type` as the second argument.
 
-**Document types:** `invoice`, `creditnote`, `estimate`, `order`, `salesorder`, `waybill`, `salesreceipt`, `purchaserefund`, `purchaseorder`
+**⚠️ INVOICES vs PURCHASES — critical distinction:**
+| doc_type | Holded name | Meaning |
+|---|---|---|
+| `invoice` | invoice | Factura **emitida a un cliente** (venta) |
+| `purchase` | purchase | Factura **recibida de un proveedor** (compra) |
+| `creditnote` | creditnote | Abono / nota de crédito a cliente |
+| `estimate` | estimate | Presupuesto |
+| `salesorder` / `order` | salesorder | Pedido de venta |
+| `waybill` | waybill | Albarán |
+| `salesreceipt` | salesreceipt | Ticket / recibo de venta |
+| `purchaserefund` | purchaserefund | Abono de proveedor |
+| `purchaseorder` | purchaseorder | Pedido de compra a proveedor |
+
+**Rule:** Use `invoice` for client invoices. Use `purchase` for supplier/vendor invoices. Never mix them.
 
 ```bash
 # List by date range (Holded uses time ranges, not page numbers)
@@ -146,5 +159,6 @@ Taxes fields: `id`, `name`, `rate`, `type`, `purchase`.
 - Documents are created in **draft** state by default
 - Use `search` before `create` to avoid duplicate contacts or products
 - Always show the user a summary before creating or paying documents
+- `invoice` = facturas **emitidas a clientes**; `purchase` = facturas **recibidas de proveedores** — never confuse them
 - `proforma` and `expense` are NOT valid document types in Holded REST API (HTTP 400)
 - Holded `dailyledger` and `chartofaccounts` are available via REST API but require `starttmp`/`endtmp`; some API keys may receive HTML (no reporting access)

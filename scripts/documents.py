@@ -25,16 +25,32 @@ def _default_range():
 
 # Map of user-facing alias → Holded unified API docType name
 # Note: 'proforma' and 'expense' are NOT valid types in Holded unified endpoint (HTTP 400)
+#
+# SALES (emitidas a clientes):
+#   invoice       → factura emitida a cliente
+#   creditnote    → abono / nota de crédito a cliente
+#   estimate      → presupuesto
+#   salesorder    → pedido de venta
+#   waybill       → albarán de venta
+#   salesreceipt  → ticket de venta
+#
+# PURCHASES (recibidas de proveedores):
+#   purchase      → factura recibida de proveedor  ← DISTINTO de invoice
+#   purchaserefund→ abono / devolución de proveedor
+#   purchaseorder → pedido de compra a proveedor
 DOC_TYPES = {
-    "invoice":       "invoice",
-    "creditnote":    "creditnote",
-    "estimate":      "estimate",
-    "order":         "salesorder",
-    "salesorder":    "salesorder",
-    "waybill":       "waybill",
-    "salesreceipt":  "salesreceipt",
-    "purchaserefund":"purchaserefund",
-    "purchaseorder": "purchaseorder",
+    # ── VENTAS / clientes ──────────────────────────────────────────────────────
+    "invoice":        "invoice",        # factura emitida a cliente
+    "creditnote":     "creditnote",     # abono a cliente
+    "estimate":       "estimate",       # presupuesto
+    "order":          "salesorder",
+    "salesorder":     "salesorder",     # pedido de venta
+    "waybill":        "waybill",        # albarán
+    "salesreceipt":   "salesreceipt",   # ticket / recibo de venta
+    # ── COMPRAS / proveedores ─────────────────────────────────────────────────
+    "purchase":       "purchase",       # factura recibida de proveedor
+    "purchaserefund": "purchaserefund", # abono de proveedor
+    "purchaseorder":  "purchaseorder",  # pedido de compra
 }
 
 BASE = "invoicing/v1/documents"

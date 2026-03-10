@@ -4,6 +4,17 @@ All notable changes to this project are documented here.
 
 ---
 
+## [1.0.8] - 2026-03-10
+
+### Fixed
+- `documents.py`: add missing `purchase` doc type (factura recibida de proveedor) — it was absent from `DOC_TYPES`, causing vendor invoices to be unreachable via the API; endpoint `invoicing/v1/documents/purchase` now correctly mapped
+- `SKILL.md`: add explicit `invoice` vs `purchase` distinction table and rule to prevent Claude from confusing sales invoices (emitidas a clientes) with purchase invoices (recibidas de proveedores)
+
+### Changed
+- `build-skill.ps1`: new distribution structure — `releases_public/` for public ZIP (no credentials); `releases_private/` for master ZIP (all credentials) + one ZIP per client (only their own API key); `releases_private/` is gitignored
+
+---
+
 ## [1.0.7] - 2026-03-04
 
 ### Changed

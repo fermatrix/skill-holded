@@ -24,7 +24,8 @@ function New-UnixZip {
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $parentDir = Split-Path -Parent $scriptDir
 $skillName = Split-Path -Leaf $scriptDir
-$releasesDir = Join-Path $scriptDir "releases"
+$releasesDir = Join-Path $scriptDir "releases_public"
+$distPrivateDir = Join-Path $scriptDir "releases_private"
 
 Write-Host "=== Skill Builder: $skillName ===" -ForegroundColor Cyan
 Write-Host "Ubicacion: $scriptDir`n" -ForegroundColor Gray
@@ -56,14 +57,28 @@ if (-not (Test-Path $envFile)) {
     exit 1
 }
 
-# Limpiar zips privados anteriores
+# Limpiar zips privados legacy del directorio padre
 $oldPrivate = Get-ChildItem -Path $parentDir -Filter "$skillName-v*-private.zip" -File
 if ($oldPrivate) {
-    Write-Host "Eliminando privados anteriores..." -ForegroundColor Yellow
+    Write-Host "Eliminando privados legacy del directorio padre..." -ForegroundColor Yellow
     $oldPrivate | ForEach-Object {
         Remove-Item $_.FullName -Force
-        Write-Host "   $_" -ForegroundColor Gray
+        Write-Host "   Eliminado: $($_.Name)" -ForegroundColor Gray
     }
+}
+
+# Limpiar dist_private anterior
+if (Test-Path $distPrivateDir) {
+    $oldDistPrivate = Get-ChildItem -Path $distPrivateDir -Filter "*.zip"
+    if ($oldDistPrivate) {
+        Write-Host "Eliminando dist_private anteriores..." -ForegroundColor Yellow
+        $oldDistPrivate | ForEach-Object {
+            Remove-Item $_.FullName -Force
+            Write-Host "   Eliminado: $($_.Name)" -ForegroundColor Gray
+        }
+    }
+} else {
+    New-Item -ItemType Directory -Path $distPrivateDir -Force > $null
 }
 
 # Limpiar releases anteriores
@@ -73,7 +88,7 @@ if (Test-Path $releasesDir) {
         Write-Host "Eliminando releases anteriores..." -ForegroundColor Yellow
         $oldReleases | ForEach-Object {
             Remove-Item $_.FullName -Force
-            Write-Host "   $_" -ForegroundColor Gray
+            Write-Host "   Eliminado: $($_.Name)" -ForegroundColor Gray
         }
     }
 } else {
@@ -90,7 +105,7 @@ $baseItems = @(
 $templatesDir = Join-Path $scriptDir "templates"
 if (Test-Path $templatesDir) { $baseItems += $templatesDir }
 
-# PUBLIC
+# ── PUBLIC ────────────────────────────────────────────────────────────────────
 Write-Host "`nConstruyendo PUBLICO..." -ForegroundColor Green
 $temp = "$env:TEMP\skill-pub-$([System.Random]::new().Next())"
 New-Item -ItemType Directory -Path $temp -Force > $null
@@ -99,17 +114,66 @@ Copy-Item -Path $publicItems -Destination $temp -Recurse -Force
 $publicZip = Join-Path $releasesDir "$skillName-v${version}-public.zip"
 New-UnixZip -SourceDir $temp -ZipPath $publicZip
 Remove-Item -Path $temp -Recurse -Force
-Write-Host "   OK $publicZip" -ForegroundColor Green
+Write-Host "   OK: $($publicZip | Split-Path -Leaf)" -ForegroundColor Green
 
-# PRIVATE
-Write-Host "`nConstruyendo PRIVADO..." -ForegroundColor Green
-$temp = "$env:TEMP\skill-priv-$([System.Random]::new().Next())"
+# ── MASTER (todos los credenciales) ──────────────────────────────────────────
+Write-Host "`nConstruyendo MASTER..." -ForegroundColor Magenta
+$temp = "$env:TEMP\skill-master-$([System.Random]::new().Next())"
 New-Item -ItemType Directory -Path $temp -Force > $null
 Copy-Item -Path $baseItems -Destination $temp -Recurse -Force
 Copy-Item -Path $envFile -Destination (Join-Path $temp ".env") -Force
-$privateZip = Join-Path $parentDir "$skillName-v${version}-private.zip"
-New-UnixZip -SourceDir $temp -ZipPath $privateZip
+$masterZip = Join-Path $distPrivateDir "$skillName-v${version}.zip"
+New-UnixZip -SourceDir $temp -ZipPath $masterZip
 Remove-Item -Path $temp -Recurse -Force
-Write-Host "   OK $privateZip (incluye .env con credenciales)" -ForegroundColor Green
+Write-Host "   OK: $($masterZip | Split-Path -Leaf)  [TODOS los credenciales]" -ForegroundColor Magenta
 
+# ── PER-CLIENT ZIPs ───────────────────────────────────────────────────────────
+# Detecta clientes buscando variables con prefijo {SKILLSHORTNAME}_{CLIENT}_*
+# Ej: skill-holded → HOLDED_ → clientes SPIRAL, REALFLOOW, ENZO, etc.
+$skillShortName = ($skillName -replace '^skill-', '').ToUpper().Replace('-', '_')
+$envPrefix = "${skillShortName}_"
+Write-Host "`nDetectando clientes (prefijo env: $envPrefix)..." -ForegroundColor Cyan
+
+$clientGroups = @{}
+foreach ($line in (Get-Content $envFile)) {
+    $trimmed = $line.Trim()
+    if ($trimmed -match '^\s*#' -or [string]::IsNullOrWhiteSpace($trimmed)) { continue }
+    if ($trimmed -match '^([A-Z0-9_]+)=(.*)$') {
+        $varName = $Matches[1]
+        if ($varName.StartsWith($envPrefix)) {
+            $clientName = $varName.Substring($envPrefix.Length).Split('_')[0]
+            if (-not $clientGroups.ContainsKey($clientName)) {
+                $clientGroups[$clientName] = [System.Collections.Generic.List[string]]::new()
+            }
+            $clientGroups[$clientName].Add($trimmed)
+        }
+    }
+}
+
+if ($clientGroups.Count -eq 0) {
+    Write-Host "   Aviso: no se detectaron clientes con prefijo $envPrefix" -ForegroundColor Yellow
+} else {
+    foreach ($clientName in ($clientGroups.Keys | Sort-Object)) {
+        Write-Host "`nConstruyendo cliente: $clientName..." -ForegroundColor Cyan
+        $temp = "$env:TEMP\skill-client-$([System.Random]::new().Next())"
+        New-Item -ItemType Directory -Path $temp -Force > $null
+        Copy-Item -Path $baseItems -Destination $temp -Recurse -Force
+
+        # .env con solo las variables de este cliente
+        $lines = @("# $skillName credentials - $clientName") + $clientGroups[$clientName]
+        Set-Content -Path (Join-Path $temp ".env") -Value $lines -Encoding UTF8
+
+        $clientZip = Join-Path $distPrivateDir "$skillName-v${version}_$clientName.zip"
+        New-UnixZip -SourceDir $temp -ZipPath $clientZip
+        Remove-Item -Path $temp -Recurse -Force
+        Write-Host "   OK: $($clientZip | Split-Path -Leaf)" -ForegroundColor Cyan
+    }
+}
+
+# ── RESUMEN ────────────────────────────────────────────────────────────────────
+Write-Host "`n=== Resumen ===" -ForegroundColor White
+Write-Host "Publico  → releases_public/" -ForegroundColor Green
+Get-ChildItem -Path $releasesDir -Filter "*.zip" | ForEach-Object { Write-Host "   $($_.Name)" -ForegroundColor Gray }
+Write-Host "Privados → releases_private/" -ForegroundColor Magenta
+Get-ChildItem -Path $distPrivateDir -Filter "*.zip" | ForEach-Object { Write-Host "   $($_.Name)" -ForegroundColor Gray }
 Write-Host "`nHecho!" -ForegroundColor Cyan
