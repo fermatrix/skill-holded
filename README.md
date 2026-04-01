@@ -4,7 +4,7 @@ Access Holded ERP from Claude via REST API. Manage contacts, all document types 
 
 ## Features
 
-- **Contacts** — search, list, get, create, update
+- **Contacts** — search (name/email/code/VAT), list, get, create, update
 - **Documents** — all 10 types: invoice, creditnote, estimate, order, proforma, waybill, salesreceipt, expense, purchaserefund, purchaseorder
   - List, search, get details with line items, create, pay, send by email, download PDF
 - **Products & Services** — search, get, create, update, stock levels per warehouse
@@ -73,3 +73,7 @@ MIT
 
 **Maintainer:** Fermatrix
 **Repository:** https://github.com/fermatrix/skill-holded
+
+## Changes (2026-04-01)
+
+- Contact search now matches VAT/NIF in addition to name/email/code

@@ -52,7 +52,8 @@ def search_contacts(client, query, limit=20):
         for c in contacts:
             if query_lower in (c.get("name") or "").lower() or \
                query_lower in (c.get("email") or "").lower() or \
-               query_lower in (c.get("code") or "").lower():
+               query_lower in (c.get("code") or "").lower() or \
+               query_lower in (c.get("vatNumber") or "").lower():
                 matches.append(_fmt(c))
                 if len(matches) >= limit:
                     break
